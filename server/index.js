@@ -88,6 +88,42 @@ app.delete('/api/todos/:id', (req, res) => {
   res.json(deletedTodo);
 });
 
+// Get users from external API
+app.get('/api/users', async (req, res) => {
+  try {
+    const fetch = (await import('node-fetch')).default;
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch users from external API');
+    }
+
+    const users = await response.json();
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Failed to fetch users', error: error.message });
+  }
+});
+
+// Get single user from external API
+app.get('/api/users/:id', async (req, res) => {
+  try {
+    const fetch = (await import('node-fetch')).default;
+    const response = await fetch(`https://jsonplaceholder.typicode.com/users/${req.params.id}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user from external API');
+    }
+
+    const user = await response.json();
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Failed to fetch user', error: error.message });
+  }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
