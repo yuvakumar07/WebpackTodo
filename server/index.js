@@ -1,14 +1,21 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Serve static files in production
+if (isProduction) {
+  app.use(express.static(path.join(__dirname, '../dist')));
+}
 
 // In-memory storage for todos
 let todos = [
@@ -129,7 +136,18 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
+// Serve React app for all non-API routes in production
+if (isProduction) {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  });
+}
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Environment: ${isProduction ? 'production' : 'development'}`);
   console.log(`API endpoints available at http://localhost:${PORT}/api/todos`);
+  if (isProduction) {
+    console.log(`Serving static files from dist folder`);
+  }
 });
