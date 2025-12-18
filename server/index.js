@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const authMiddleware = require('./authMiddleware');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -11,6 +12,9 @@ const isProduction = process.env.NODE_ENV === 'production';
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Apply OAuth authentication to all API routes
+app.use('/api/*', authMiddleware);
 
 // Serve static files in production
 if (isProduction) {
